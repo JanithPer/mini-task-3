@@ -1,0 +1,43 @@
+Sprint 3 — Weeks 5–6: Retrieval Mastery
+Concepts to master
+- Embeddings deeply — what dimensions mean, why cosine similarity, embedding model
+trade-offs
+- Cost of embeddings — embeddings are cheap per call but expensive at corpus scale;
+pick wisely
+- Vector databases — pgvector specifically, with HNSW vs IVFFlat indexing
+- Chunking strategies: fixed-size, recursive, semantic chunking, late chunking
+- Hybrid search: vector + BM25 / Postgres FTS
+- Contextual retrieval (Anthropic's technique — prepend chunk context with surrounding
+doc context before embedding)
+- Reranking with Cohere Rerank or open-source cross-encoders
+- Query rewriting and HyDE (Hypothetical Document Embeddings)
+- GraphRAG — Microsoft's approach combining knowledge graphs with retrieval
+- Text-to-SQL for retrieval over structured data
+- Multi-step / agentic retrieval
+Resources
+- 📺 Vector Search RAG Tutorial — freeCodeCamp — 1hr 11min hands-on
+- 📖 Anthropic — Contextual Retrieval — single most impactful RAG technique of the last
+2 years
+- 📖 Microsoft — GraphRAG
+- 📖 Jason Liu's RAG writings — read everything
+- 📖 pgvector README — focus on indexing
+- 📖 ColBERT / late interaction explainer
+- 📖 Docling for high-quality PDF parsing
+Mini-task 3: Production-Grade Retrieval Engine
+Build a retrieval system that:
+- Ingests 100+ PDFs (your choice of domain — legal, medical, technical, regulatory,
+anything)
+- Implements two chunking strategies (recursive and semantic) — A/B tested
+- Implements contextual retrieval — uses a small model to prepend each chunk with its
+context before embedding
+- Stores in pgvector with HNSW indexing
+- Implements hybrid search — vector + Postgres FTS, fused with Reciprocal Rank
+Fusion
+- Implements reranking — Cohere Rerank or a local cross-encoder
+- Implements query rewriting — Claude rewrites the user query into 3 search queries
+- Benchmarking script: 50 test queries with expected chunks; outputs Recall@5,
+Recall@10, MRR per strategy
+- Cost report: ingestion cost per 1000 pages (embeddings + contextual generation),
+query cost per call (rewriting + retrieval + reranking)
+Why this matters: Retrieval is the actual bottleneck of every production RAG system. You'll
+know exactly which technique gives what Recall@K and what it costs.
