@@ -1,1 +1,16 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+uv.lock
+data/pdfs/*
+!data/pdfs/.gitkeep
+data/benchmarks/*
+!data/benchmarks/.gitkeep
+
+# Other
 docs/
