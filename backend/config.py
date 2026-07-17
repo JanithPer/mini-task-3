@@ -10,11 +10,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "postgresql://retrieval:retrieval@localhost:5433/retrieval"
     OPENAI_API_KEY: str = ""
-    COHERE_API_KEY: str = ""
-    EMBEDDING_MODEL: str = "text-embedding-3-small"
-    EMBEDDING_DIM: int = 1536
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    EMBEDDING_DIM: int = 384
     CONTEXT_MODEL: str = "gpt-4o-mini"
-    RERANK_MODEL: str = "rerank-english-v3.0"
+    RERANK_MODEL: str = "BAAI/bge-reranker-base"
     INGEST_PDF_DIR: str = "./data/pdfs"
     REQUEST_TIMEOUT_S: int = 30
 

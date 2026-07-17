@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS chunks (
     strategy TEXT NOT NULL CHECK (strategy IN ('recursive','semantic')),
     content TEXT NOT NULL,
     contextualized_content TEXT,
-    embedding vector(1536),
+    embedding vector(384),
     metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
     token_count INT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

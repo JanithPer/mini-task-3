@@ -3,7 +3,7 @@ name = "mini-task-3"
 version = "0.1.0"
 description = "Retrieval-augmented generation benchmark over arXiv papers"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi",
     "uvicorn[standard]",
@@ -11,7 +11,7 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "openai",
-    "cohere",
+    "sentence-transformers",
     "httpx",
     "tiktoken",
     "python-dotenv",
@@ -32,14 +32,14 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py314"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "SIM"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 disallow_untyped_defs = true
