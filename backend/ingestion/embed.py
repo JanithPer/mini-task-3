@@ -1,3 +1,5 @@
+import contextlib
+
 from sentence_transformers import SentenceTransformer
 
 from backend.config import settings
@@ -9,10 +11,8 @@ def _get_model() -> SentenceTransformer:
     global _model
     if _model is None:
         _model = SentenceTransformer(settings.EMBEDDING_MODEL)
-        try:
+        with contextlib.suppress(Exception):
             _model.to("cuda")
-        except Exception:
-            pass
     return _model
 
 

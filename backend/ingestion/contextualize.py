@@ -105,7 +105,7 @@ def count_context_tokens(
     tokens_in = 0
     tokens_out = 0
 
-    for chunk, ctx in zip(chunks, contexts):
+    for chunk, ctx in zip(chunks, contexts, strict=True):
         prompt = USER_TEMPLATE.format(
             summary=doc_summary,
             doc_text=doc_text[:6000],

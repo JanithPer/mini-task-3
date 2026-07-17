@@ -1,8 +1,10 @@
 import asyncpg
 
-from backend.config import settings
-from backend.db import get_pool
 from backend.ingestion import Chunk, Paper
+
+
+def _format_vector(embedding: list[float]) -> str:
+    return "[" + ",".join(str(v) for v in embedding) + "]"
 
 
 async def upsert_document(conn: asyncpg.Connection, paper: Paper) -> int:
@@ -39,26 +41,24 @@ async def upsert_chunks(
         strategy,
     )
 
-    records = [
-        (
+    for i in range(len(chunks)):
+        emb = embeddings[i] if i < len(embeddings) else None
+        emb_str = _format_vector(emb) if emb else None
+        ctx = contextualized[i] if contextualized[i] else None
+
+        await conn.execute(
+            """
+            INSERT INTO chunks (document_id, strategy, content, contextualized_content, embedding, metadata, token_count)
+            VALUES ($1, $2, $3, $4, $5::vector, $6, $7)
+            """,
             document_id,
             strategy,
             chunks[i].content,
-            contextualized[i] if contextualized[i] else None,
-            embeddings[i] if i < len(embeddings) else None,
+            ctx,
+            emb_str,
             "{}",
             chunks[i].token_count,
         )
-        for i in range(len(chunks))
-    ]
-
-    await conn.executemany(
-        """
-        INSERT INTO chunks (document_id, strategy, content, contextualized_content, embedding, metadata, token_count)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        """,
-        records,
-    )
 
 
 async def create_hnsw_index(conn: asyncpg.Connection) -> None:
@@ -129,7 +129,7 @@ async def update_ingestion_task(
         fields.append(f"status = ${len(values) + 1}")
         values.append(status)
         if status in ("complete", "error"):
-            fields.append(f"finished_at = now()")
+            fields.append("finished_at = now()")
 
     if progress is not None:
         fields.append(f"progress = ${len(values) + 1}")

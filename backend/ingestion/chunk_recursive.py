@@ -25,9 +25,11 @@ def chunk_recursive(
         chunk_text = _align_to_separators(text, token_ids, start, chunk_ids, encoding)
 
         chunks.append(Chunk(content=chunk_text, token_count=len(encoding.encode(chunk_text))))
-        start = end - overlap_tokens
-        if start <= 0 or start >= total:
+
+        if end >= total:
             break
+
+        start = max(1, end - overlap_tokens)
 
     return chunks
 
@@ -42,7 +44,9 @@ def _align_to_separators(
     chunk_text = encoding.decode(chunk_ids)
 
     for sep in SEPARATORS[:-1]:
-        last_sep = chunk_text.rfind(sep) if sep else -1
+        if not sep:
+            continue
+        last_sep = chunk_text.rfind(sep)
         if last_sep > len(chunk_text) // 2:
             chunk_text = chunk_text[: last_sep + len(sep)]
             break

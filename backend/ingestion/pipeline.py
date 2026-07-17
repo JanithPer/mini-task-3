@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from backend.db import close_pool, init_pool
-from backend.ingestion import IngestionSummary
+from backend.ingestion import IngestionSummary, Paper
 from backend.ingestion.chunk_recursive import chunk_recursive
 from backend.ingestion.chunk_semantic import chunk_semantic
 from backend.ingestion.contextualize import contextualize_chunks, count_context_tokens
@@ -44,7 +44,7 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
 
         logger.info("Step 2: Parsing PDFs...")
         parsed_docs = []
-        for i, paper in enumerate(papers):
+        for paper in papers:
             try:
                 doc = await parse_pdf(paper.file_path)
                 parsed_docs.append(doc)
@@ -75,11 +75,11 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
 
                 rec_embed_texts = [
                     f"{ctx}\n\n{chunk.content}" if ctx else chunk.content
-                    for ctx, chunk in zip(rec_contexts, rec_chunks)
+                    for ctx, chunk in zip(rec_contexts, rec_chunks, strict=True)
                 ]
                 sem_embed_texts = [
                     f"{ctx}\n\n{chunk.content}" if ctx else chunk.content
-                    for ctx, chunk in zip(sem_contexts, sem_chunks)
+                    for ctx, chunk in zip(sem_contexts, sem_chunks, strict=True)
                 ]
 
                 rec_embeddings = embed_texts(rec_embed_texts)
