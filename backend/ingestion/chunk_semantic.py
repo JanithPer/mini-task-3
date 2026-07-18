@@ -21,6 +21,10 @@ def _get_model() -> SentenceTransformer:
     global _model
     if _model is None:
         _model = SentenceTransformer(settings.EMBEDDING_MODEL)
+        import contextlib
+
+        with contextlib.suppress(Exception):
+            _model.to("cuda")
     return _model
 
 
