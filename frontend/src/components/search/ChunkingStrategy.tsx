@@ -1,10 +1,10 @@
 import { OptionCard } from '@/components/ui/OptionCard'
-import type { ChunkingStrategy, ChunkingStrategyId } from '@/types'
+import type { ChunkingStrategy, ChunkStrategy } from '@/types'
 
 interface ChunkingStrategyProps {
   options: ChunkingStrategy[]
-  selected: ChunkingStrategyId
-  onSelect: (id: ChunkingStrategyId) => void
+  selected: ChunkStrategy
+  onSelect: (id: ChunkStrategy) => void
 }
 
 export function ChunkingStrategyControl({ options, selected, onSelect }: ChunkingStrategyProps) {
