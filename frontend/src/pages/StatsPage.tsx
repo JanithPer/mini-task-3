@@ -148,7 +148,7 @@ export function StatsPage() {
 
   const costRows = costDetailRows.length > 0 ? costDetailRows : []
   const hasCostData = costRows.length > 0
-  const hasBenchmarkData = benchmarkResults.length > 0
+  const hasBenchmarkData = benRows.length > 0
 
   if (error) {
     return (

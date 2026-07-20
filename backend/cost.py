@@ -115,10 +115,8 @@ async def avg_query_cost(conn: asyncpg.Connection, *, last_n_runs: int = 1) -> C
         FROM cost_events
         WHERE component IN ('embedding', 'query_rewrite', 'rerank')
           AND occurred_at >= $1
-          AND occurred_at <= $2
         """,
         oldest_run,
-        newest_run,
     )
 
     embedding = float(row["embedding"]) if row else 0.0
