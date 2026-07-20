@@ -1,52 +1,967 @@
 [
-  {"id": "q001", "query": "What is multi-head attention and how does it work?", "golden_chunks": []},
-  {"id": "q002", "query": "How do transformer models handle long-range dependencies?", "golden_chunks": []},
-  {"id": "q003", "query": "What is the role of positional encoding in transformers?", "golden_chunks": []},
-  {"id": "q004", "query": "Explain the differences between encoder-only and decoder-only transformer architectures.", "golden_chunks": []},
-  {"id": "q005", "query": "What are the key components of the Transformer architecture introduced by Vaswani et al.?", "golden_chunks": []},
-  {"id": "q006", "query": "How does scaled dot-product attention differ from additive attention?", "golden_chunks": []},
-  {"id": "q007", "query": "What is cross-attention and how is it used in sequence-to-sequence models?", "golden_chunks": []},
-  {"id": "q008", "query": "How do attention heads capture different linguistic relationships?", "golden_chunks": []},
-  {"id": "q009", "query": "What is the time and memory complexity of self-attention?", "golden_chunks": []},
-  {"id": "q010", "query": "How do sparse attention mechanisms reduce computational cost?", "golden_chunks": []},
-  {"id": "q011", "query": "What is reinforcement learning from human feedback (RLHF) and how is it applied?", "golden_chunks": []},
-  {"id": "q012", "query": "How does proximal policy optimization (PPO) work in the context of LLM fine-tuning?", "golden_chunks": []},
-  {"id": "q013", "query": "What are the challenges of reward modeling in RLHF?", "golden_chunks": []},
-  {"id": "q014", "query": "How does direct preference optimization (DPO) compare to RLHF?", "golden_chunks": []},
-  {"id": "q015", "query": "What is constitutional AI and how does it relate to alignment?", "golden_chunks": []},
-  {"id": "q016", "query": "How do diffusion models generate images from noise?", "golden_chunks": []},
-  {"id": "q017", "query": "What is the forward and reverse process in denoising diffusion probabilistic models?", "golden_chunks": []},
-  {"id": "q018", "query": "How does classifier-free guidance improve diffusion model outputs?", "golden_chunks": []},
-  {"id": "q019", "query": "What are the differences between DDPM, DDIM, and score-based generative models?", "golden_chunks": []},
-  {"id": "q020", "query": "How are latent diffusion models more efficient than pixel-space diffusion?", "golden_chunks": []},
-  {"id": "q021", "query": "What is retrieval-augmented generation (RAG) and how does it improve LLM outputs?", "golden_chunks": []},
-  {"id": "q022", "query": "How does dense passage retrieval (DPR) work for open-domain question answering?", "golden_chunks": []},
-  {"id": "q023", "query": "What are the trade-offs between sparse and dense retrieval methods?", "golden_chunks": []},
-  {"id": "q024", "query": "How does chunking strategy affect retrieval quality in RAG systems?", "golden_chunks": []},
-  {"id": "q025", "query": "What is context-augmented retrieval and how does it improve chunk relevance?", "golden_chunks": []},
-  {"id": "q026", "query": "What are scaling laws for neural language models and what do they predict?", "golden_chunks": []},
-  {"id": "q027", "query": "How does model size affect performance according to the Chinchilla scaling laws?", "golden_chunks": []},
-  {"id": "q028", "query": "What is the relationship between compute, dataset size, and model performance?", "golden_chunks": []},
-  {"id": "q029", "query": "How do emergent abilities arise in large language models?", "golden_chunks": []},
-  {"id": "q030", "query": "What is the optimal training data-to-parameters ratio for modern LLMs?", "golden_chunks": []},
-  {"id": "q031", "query": "What is in-context learning and how does it differ from fine-tuning?", "golden_chunks": []},
-  {"id": "q032", "query": "How does few-shot prompting influence model performance on downstream tasks?", "golden_chunks": []},
-  {"id": "q033", "query": "What mechanisms enable large language models to learn from demonstrations without weight updates?", "golden_chunks": []},
-  {"id": "q034", "query": "How does chain-of-thought prompting improve reasoning capabilities?", "golden_chunks": []},
-  {"id": "q035", "query": "What is the relationship between in-context learning and implicit gradient descent?", "golden_chunks": []},
-  {"id": "q036", "query": "How do mixture-of-experts (MoE) architectures improve model efficiency?", "golden_chunks": []},
-  {"id": "q037", "query": "What are the routing strategies used in mixture-of-experts models?", "golden_chunks": []},
-  {"id": "q038", "query": "How does load balancing work across experts in MoE transformers?", "golden_chunks": []},
-  {"id": "q039", "query": "What is byte-pair encoding (BPE) and how is it used in modern tokenizers?", "golden_chunks": []},
-  {"id": "q040", "query": "How do subword tokenization methods like WordPiece and SentencePiece compare?", "golden_chunks": []},
-  {"id": "q041", "query": "What are the limitations of tokenization for multilingual and code-related tasks?", "golden_chunks": []},
-  {"id": "q042", "query": "How does parameter-efficient fine-tuning (PEFT) with LoRA reduce training costs?", "golden_chunks": []},
-  {"id": "q043", "query": "What is instruction tuning and how does it improve zero-shot performance?", "golden_chunks": []},
-  {"id": "q044", "query": "How does adversarial training improve model robustness?", "golden_chunks": []},
-  {"id": "q045", "query": "What is knowledge distillation and how is it applied to large language models?", "golden_chunks": []},
-  {"id": "q046", "query": "How is BLEU score computed and what are its limitations for NLG evaluation?", "golden_chunks": []},
-  {"id": "q047", "query": "What is perplexity as an evaluation metric for language models?", "golden_chunks": []},
-  {"id": "q048", "query": "How do human evaluation methods compare to automatic metrics for text generation?", "golden_chunks": []},
-  {"id": "q049", "query": "What benchmarks are commonly used to evaluate LLM reasoning capabilities?", "golden_chunks": []},
-  {"id": "q050", "query": "What are the key considerations in building production-grade retrieval systems?", "golden_chunks": []}
+  {
+    "id": "q001",
+    "query": "What is multi-head attention and how does it work?",
+    "golden_chunks": [
+      "4001",
+      "128",
+      "118",
+      "119"
+    ],
+    "golden_chunks_recursive": [
+      "4001",
+      "128",
+      "118",
+      "119"
+    ],
+    "golden_chunks_semantic": [
+      "4824",
+      "658",
+      "144",
+      "131"
+    ]
+  },
+  {
+    "id": "q002",
+    "query": "How do transformer models handle long-range dependencies?",
+    "golden_chunks": [
+      "154",
+      "149",
+      "153",
+      "147"
+    ],
+    "golden_chunks_recursive": [
+      "154",
+      "149",
+      "153",
+      "147"
+    ],
+    "golden_chunks_semantic": [
+      "2568",
+      "178",
+      "179",
+      "4024"
+    ]
+  },
+  {
+    "id": "q003",
+    "query": "What is the role of positional encoding in transformers?",
+    "golden_chunks": [
+      "149",
+      "150",
+      "147",
+      "154"
+    ],
+    "golden_chunks_recursive": [
+      "149",
+      "150",
+      "147",
+      "154"
+    ],
+    "golden_chunks_semantic": [
+      "4024",
+      "3620",
+      "4020",
+      "4019"
+    ]
+  },
+  {
+    "id": "q004",
+    "query": "Explain the differences between encoder-only and decoder-only transformer architectures.",
+    "golden_chunks": [
+      "2549",
+      "147",
+      "3108",
+      "3491"
+    ],
+    "golden_chunks_recursive": [
+      "2549",
+      "147",
+      "3108",
+      "3491"
+    ],
+    "golden_chunks_semantic": [
+      "4020",
+      "3620",
+      "3622",
+      "4824"
+    ]
+  },
+  {
+    "id": "q005",
+    "query": "What are the key components of the Transformer architecture introduced by Vaswani et al.?",
+    "golden_chunks": [
+      "153",
+      "147",
+      "149",
+      "4808"
+    ],
+    "golden_chunks_recursive": [
+      "153",
+      "147",
+      "149",
+      "4808"
+    ],
+    "golden_chunks_semantic": [
+      "3620",
+      "4020",
+      "2568",
+      "169"
+    ]
+  },
+  {
+    "id": "q006",
+    "query": "How does scaled dot-product attention differ from additive attention?",
+    "golden_chunks": [
+      "118",
+      "119",
+      "4001"
+    ],
+    "golden_chunks_recursive": [
+      "118",
+      "119",
+      "4001"
+    ],
+    "golden_chunks_semantic": [
+      "658",
+      "133",
+      "132"
+    ]
+  },
+  {
+    "id": "q007",
+    "query": "What is cross-attention and how is it used in sequence-to-sequence models?",
+    "golden_chunks": [
+      "2211",
+      "147",
+      "118"
+    ],
+    "golden_chunks_recursive": [
+      "2211",
+      "147",
+      "118"
+    ],
+    "golden_chunks_semantic": [
+      "143",
+      "3400",
+      "658"
+    ]
+  },
+  {
+    "id": "q008",
+    "query": "How do attention heads capture different linguistic relationships?",
+    "golden_chunks": [
+      "119",
+      "118",
+      "1757"
+    ],
+    "golden_chunks_recursive": [
+      "119",
+      "118",
+      "1757"
+    ],
+    "golden_chunks_semantic": [
+      "132",
+      "1886",
+      "133"
+    ]
+  },
+  {
+    "id": "q009",
+    "query": "What is the time and memory complexity of self-attention?",
+    "golden_chunks": [
+      "635",
+      "3914",
+      "4002"
+    ],
+    "golden_chunks_recursive": [
+      "635",
+      "3914",
+      "4002"
+    ],
+    "golden_chunks_semantic": [
+      "3943",
+      "193",
+      "3944"
+    ]
+  },
+  {
+    "id": "q010",
+    "query": "How do sparse attention mechanisms reduce computational cost?",
+    "golden_chunks": [
+      "118",
+      "147",
+      "4002"
+    ],
+    "golden_chunks_recursive": [
+      "118",
+      "147",
+      "4002"
+    ],
+    "golden_chunks_semantic": [
+      "658",
+      "193",
+      "132"
+    ]
+  },
+  {
+    "id": "q011",
+    "query": "What is reinforcement learning from human feedback (RLHF) and how is it applied?",
+    "golden_chunks": [
+      "1160",
+      "1164",
+      "1257"
+    ],
+    "golden_chunks_recursive": [
+      "1160",
+      "1164",
+      "1257"
+    ],
+    "golden_chunks_semantic": [
+      "1191",
+      "1276",
+      "1317"
+    ]
+  },
+  {
+    "id": "q012",
+    "query": "How does proximal policy optimization (PPO) work in the context of LLM fine-tuning?",
+    "golden_chunks": [
+      "1265",
+      "1296",
+      "401"
+    ],
+    "golden_chunks_recursive": [
+      "1265",
+      "1296",
+      "401"
+    ],
+    "golden_chunks_semantic": [
+      "412",
+      "1188",
+      "1284"
+    ]
+  },
+  {
+    "id": "q013",
+    "query": "What are the challenges of reward modeling in RLHF?",
+    "golden_chunks": [
+      "4078",
+      "4083",
+      "4081"
+    ],
+    "golden_chunks_recursive": [
+      "4078",
+      "4083",
+      "4081"
+    ],
+    "golden_chunks_semantic": [
+      "4110",
+      "4111",
+      "4109"
+    ]
+  },
+  {
+    "id": "q014",
+    "query": "How does direct preference optimization (DPO) compare to RLHF?",
+    "golden_chunks": [
+      "4406",
+      "3765",
+      "1154"
+    ],
+    "golden_chunks_recursive": [
+      "4406",
+      "3765",
+      "1154"
+    ],
+    "golden_chunks_semantic": [
+      "4675",
+      "4672",
+      "5107"
+    ]
+  },
+  {
+    "id": "q015",
+    "query": "What is constitutional AI and how does it relate to alignment?",
+    "golden_chunks": [
+      "1672",
+      "2504",
+      "5057"
+    ],
+    "golden_chunks_recursive": [
+      "1672",
+      "2504",
+      "5057"
+    ],
+    "golden_chunks_semantic": [
+      "5116",
+      "2533",
+      "5117"
+    ]
+  },
+  {
+    "id": "q016",
+    "query": "How do diffusion models generate images from noise?",
+    "golden_chunks": [
+      "965",
+      "3486",
+      "984"
+    ],
+    "golden_chunks_recursive": [
+      "965",
+      "3486",
+      "984"
+    ],
+    "golden_chunks_semantic": [
+      "3509",
+      "3095",
+      "1016"
+    ]
+  },
+  {
+    "id": "q017",
+    "query": "What is the forward and reverse process in denoising diffusion probabilistic models?",
+    "golden_chunks": [
+      "2787",
+      "2789",
+      "198"
+    ],
+    "golden_chunks_recursive": [
+      "2787",
+      "2789",
+      "198"
+    ],
+    "golden_chunks_semantic": [
+      "217",
+      "221",
+      "2813"
+    ]
+  },
+  {
+    "id": "q018",
+    "query": "How does classifier-free guidance improve diffusion model outputs?",
+    "golden_chunks": [
+      "2555",
+      "968",
+      "2799"
+    ],
+    "golden_chunks_recursive": [
+      "2555",
+      "968",
+      "2799"
+    ],
+    "golden_chunks_semantic": [
+      "3875",
+      "2397",
+      "1879"
+    ]
+  },
+  {
+    "id": "q019",
+    "query": "What are the differences between DDPM, DDIM, and score-based generative models?",
+    "golden_chunks": [
+      "2560",
+      "2646",
+      "2979"
+    ],
+    "golden_chunks_recursive": [
+      "2560",
+      "2646",
+      "2979"
+    ],
+    "golden_chunks_semantic": [
+      "3946",
+      "708",
+      "709"
+    ]
+  },
+  {
+    "id": "q020",
+    "query": "How are latent diffusion models more efficient than pixel-space diffusion?",
+    "golden_chunks": [
+      "2799",
+      "2804",
+      "2803"
+    ],
+    "golden_chunks_recursive": [
+      "2799",
+      "2804",
+      "2803"
+    ],
+    "golden_chunks_semantic": [
+      "4879",
+      "2813",
+      "2833"
+    ]
+  },
+  {
+    "id": "q021",
+    "query": "What is retrieval-augmented generation (RAG) and how does it improve LLM outputs?",
+    "golden_chunks": [
+      "2709",
+      "5222",
+      "2717"
+    ],
+    "golden_chunks_recursive": [
+      "2709",
+      "5222",
+      "2717"
+    ],
+    "golden_chunks_semantic": [
+      "5233",
+      "2755",
+      "2745"
+    ]
+  },
+  {
+    "id": "q022",
+    "query": "How does dense passage retrieval (DPR) work for open-domain question answering?",
+    "golden_chunks": [
+      "4151",
+      "4153",
+      "1126"
+    ],
+    "golden_chunks_recursive": [
+      "4151",
+      "4153",
+      "1126"
+    ],
+    "golden_chunks_semantic": [
+      "4176",
+      "5232",
+      "5241"
+    ]
+  },
+  {
+    "id": "q023",
+    "query": "What are the trade-offs between sparse and dense retrieval methods?",
+    "golden_chunks": [
+      "5219",
+      "5222",
+      "5220"
+    ],
+    "golden_chunks_recursive": [
+      "5219",
+      "5222",
+      "5220"
+    ],
+    "golden_chunks_semantic": [
+      "5235",
+      "5233",
+      "5237"
+    ]
+  },
+  {
+    "id": "q024",
+    "query": "How does chunking strategy affect retrieval quality in RAG systems?",
+    "golden_chunks": [
+      "5222",
+      "874",
+      "5223"
+    ],
+    "golden_chunks_recursive": [
+      "5222",
+      "874",
+      "5223"
+    ],
+    "golden_chunks_semantic": [
+      "897",
+      "3636",
+      "5233"
+    ]
+  },
+  {
+    "id": "q025",
+    "query": "What is context-augmented retrieval and how does it improve chunk relevance?",
+    "golden_chunks": [
+      "5222",
+      "5225",
+      "4143"
+    ],
+    "golden_chunks_recursive": [
+      "5222",
+      "5225",
+      "4143"
+    ],
+    "golden_chunks_semantic": [
+      "5238",
+      "5235",
+      "5229"
+    ]
+  },
+  {
+    "id": "q026",
+    "query": "What are scaling laws for neural language models and what do they predict?",
+    "golden_chunks": [
+      "124",
+      "165",
+      "161"
+    ],
+    "golden_chunks_recursive": [
+      "124",
+      "165",
+      "161"
+    ],
+    "golden_chunks_semantic": [
+      "188",
+      "193",
+      "185"
+    ]
+  },
+  {
+    "id": "q027",
+    "query": "How does model size affect performance according to the Chinchilla scaling laws?",
+    "golden_chunks": [
+      "304",
+      "1130",
+      "1129"
+    ],
+    "golden_chunks_recursive": [
+      "304",
+      "1130",
+      "1129"
+    ],
+    "golden_chunks_semantic": [
+      "951",
+      "4064",
+      "3075"
+    ]
+  },
+  {
+    "id": "q028",
+    "query": "What is the relationship between compute, dataset size, and model performance?",
+    "golden_chunks": [
+      "2168",
+      "4145",
+      "1130"
+    ],
+    "golden_chunks_recursive": [
+      "2168",
+      "4145",
+      "1130"
+    ],
+    "golden_chunks_semantic": [
+      "2908",
+      "4567",
+      "3877"
+    ]
+  },
+  {
+    "id": "q029",
+    "query": "How do emergent abilities arise in large language models?",
+    "golden_chunks": [
+      "2995",
+      "2323",
+      "1866"
+    ],
+    "golden_chunks_recursive": [
+      "2995",
+      "2323",
+      "1866"
+    ],
+    "golden_chunks_semantic": [
+      "3030",
+      "193",
+      "3031"
+    ]
+  },
+  {
+    "id": "q030",
+    "query": "What is the optimal training data-to-parameters ratio for modern LLMs?",
+    "golden_chunks": [
+      "3837",
+      "733",
+      "2379"
+    ],
+    "golden_chunks_recursive": [
+      "3837",
+      "733",
+      "2379"
+    ],
+    "golden_chunks_semantic": [
+      "3876",
+      "951",
+      "949"
+    ]
+  },
+  {
+    "id": "q031",
+    "query": "What is in-context learning and how does it differ from fine-tuning?",
+    "golden_chunks": [
+      "3532",
+      "4775",
+      "642"
+    ],
+    "golden_chunks_recursive": [
+      "3532",
+      "4775",
+      "642"
+    ],
+    "golden_chunks_semantic": [
+      "4800",
+      "4791",
+      "1033"
+    ]
+  },
+  {
+    "id": "q032",
+    "query": "How does few-shot prompting influence model performance on downstream tasks?",
+    "golden_chunks": [
+      "3103",
+      "3428",
+      "2985"
+    ],
+    "golden_chunks_recursive": [
+      "3103",
+      "3428",
+      "2985"
+    ],
+    "golden_chunks_semantic": [
+      "3006",
+      "3017",
+      "3943"
+    ]
+  },
+  {
+    "id": "q033",
+    "query": "What mechanisms enable large language models to learn from demonstrations without weight updates?",
+    "golden_chunks": [
+      "2995",
+      "2371",
+      "5051"
+    ],
+    "golden_chunks_recursive": [
+      "2995",
+      "2371",
+      "5051"
+    ],
+    "golden_chunks_semantic": [
+      "1189",
+      "2402",
+      "2883"
+    ]
+  },
+  {
+    "id": "q034",
+    "query": "How does chain-of-thought prompting improve reasoning capabilities?",
+    "golden_chunks": [
+      "5038",
+      "5035",
+      "3532"
+    ],
+    "golden_chunks_recursive": [
+      "5038",
+      "5035",
+      "3532"
+    ],
+    "golden_chunks_semantic": [
+      "5114",
+      "5116",
+      "5117"
+    ]
+  },
+  {
+    "id": "q035",
+    "query": "What is the relationship between in-context learning and implicit gradient descent?",
+    "golden_chunks": [
+      "4775",
+      "3532",
+      "3551"
+    ],
+    "golden_chunks_recursive": [
+      "4775",
+      "3532",
+      "3551"
+    ],
+    "golden_chunks_semantic": [
+      "4799",
+      "4800",
+      "4798"
+    ]
+  },
+  {
+    "id": "q036",
+    "query": "How do mixture-of-experts (MoE) architectures improve model efficiency?",
+    "golden_chunks": [
+      "395",
+      "930",
+      "5049"
+    ],
+    "golden_chunks_recursive": [
+      "395",
+      "930",
+      "5049"
+    ],
+    "golden_chunks_semantic": [
+      "2576",
+      "4204",
+      "175"
+    ]
+  },
+  {
+    "id": "q037",
+    "query": "What are the routing strategies used in mixture-of-experts models?",
+    "golden_chunks": [
+      "2804",
+      "4839",
+      "3669"
+    ],
+    "golden_chunks_recursive": [
+      "2804",
+      "4839",
+      "3669"
+    ],
+    "golden_chunks_semantic": [
+      "5104",
+      "5212",
+      "2835"
+    ]
+  },
+  {
+    "id": "q038",
+    "query": "How does load balancing work across experts in MoE transformers?",
+    "golden_chunks": [
+      "5074",
+      "5070",
+      "5065"
+    ],
+    "golden_chunks_recursive": [
+      "5074",
+      "5070",
+      "5065"
+    ],
+    "golden_chunks_semantic": [
+      "5141",
+      "5130",
+      "5142"
+    ]
+  },
+  {
+    "id": "q039",
+    "query": "What is byte-pair encoding (BPE) and how is it used in modern tokenizers?",
+    "golden_chunks": [
+      "152",
+      "199",
+      "3594"
+    ],
+    "golden_chunks_recursive": [
+      "152",
+      "199",
+      "3594"
+    ],
+    "golden_chunks_semantic": [
+      "220",
+      "186",
+      "838"
+    ]
+  },
+  {
+    "id": "q040",
+    "query": "How do subword tokenization methods like WordPiece and SentencePiece compare?",
+    "golden_chunks": [
+      "991",
+      "1804",
+      "1752"
+    ],
+    "golden_chunks_recursive": [
+      "991",
+      "1804",
+      "1752"
+    ],
+    "golden_chunks_semantic": [
+      "1040",
+      "3310",
+      "1844"
+    ]
+  },
+  {
+    "id": "q041",
+    "query": "What are the limitations of tokenization for multilingual and code-related tasks?",
+    "golden_chunks": [
+      "737",
+      "4050",
+      "739"
+    ],
+    "golden_chunks_recursive": [
+      "737",
+      "4050",
+      "739"
+    ],
+    "golden_chunks_semantic": [
+      "750",
+      "763",
+      "1606"
+    ]
+  },
+  {
+    "id": "q042",
+    "query": "How does parameter-efficient fine-tuning (PEFT) with LoRA reduce training costs?",
+    "golden_chunks": [
+      "994",
+      "1129",
+      "2712"
+    ],
+    "golden_chunks_recursive": [
+      "994",
+      "1129",
+      "2712"
+    ],
+    "golden_chunks_semantic": [
+      "951",
+      "1043",
+      "2771"
+    ]
+  },
+  {
+    "id": "q043",
+    "query": "What is instruction tuning and how does it improve zero-shot performance?",
+    "golden_chunks": [
+      "733",
+      "734",
+      "1154"
+    ],
+    "golden_chunks_recursive": [
+      "733",
+      "734",
+      "1154"
+    ],
+    "golden_chunks_semantic": [
+      "759",
+      "5105",
+      "2578"
+    ]
+  },
+  {
+    "id": "q044",
+    "query": "How does adversarial training improve model robustness?",
+    "golden_chunks": [
+      "987",
+      "985",
+      "962"
+    ],
+    "golden_chunks_recursive": [
+      "987",
+      "985",
+      "962"
+    ],
+    "golden_chunks_semantic": [
+      "1032",
+      "1035",
+      "1004"
+    ]
+  },
+  {
+    "id": "q045",
+    "query": "What is knowledge distillation and how is it applied to large language models?",
+    "golden_chunks": [
+      "2552",
+      "356",
+      "646"
+    ],
+    "golden_chunks_recursive": [
+      "2552",
+      "356",
+      "646"
+    ],
+    "golden_chunks_semantic": [
+      "4168",
+      "2582",
+      "4166"
+    ]
+  },
+  {
+    "id": "q046",
+    "query": "How is BLEU score computed and what are its limitations for NLG evaluation?",
+    "golden_chunks": [
+      "527",
+      "1071",
+      "529"
+    ],
+    "golden_chunks_recursive": [
+      "527",
+      "1071",
+      "529"
+    ],
+    "golden_chunks_semantic": [
+      "555",
+      "3707",
+      "2613"
+    ]
+  },
+  {
+    "id": "q047",
+    "query": "What is perplexity as an evaluation metric for language models?",
+    "golden_chunks": [
+      "2986",
+      "2979",
+      "1809"
+    ],
+    "golden_chunks_recursive": [
+      "2986",
+      "2979",
+      "1809"
+    ],
+    "golden_chunks_semantic": [
+      "181",
+      "2746",
+      "3019"
+    ]
+  },
+  {
+    "id": "q048",
+    "query": "How do human evaluation methods compare to automatic metrics for text generation?",
+    "golden_chunks": [
+      "1071",
+      "1357",
+      "1072"
+    ],
+    "golden_chunks_recursive": [
+      "1071",
+      "1357",
+      "1072"
+    ],
+    "golden_chunks_semantic": [
+      "1106",
+      "2755",
+      "1107"
+    ]
+  },
+  {
+    "id": "q049",
+    "query": "What benchmarks are commonly used to evaluate LLM reasoning capabilities?",
+    "golden_chunks": [
+      "5073",
+      "5050",
+      "2168"
+    ],
+    "golden_chunks_recursive": [
+      "5073",
+      "5050",
+      "2168"
+    ],
+    "golden_chunks_semantic": [
+      "317",
+      "4316",
+      "2197"
+    ]
+  },
+  {
+    "id": "q050",
+    "query": "What are the key considerations in building production-grade retrieval systems?",
+    "golden_chunks": [
+      "873",
+      "3601",
+      "874"
+    ],
+    "golden_chunks_recursive": [
+      "873",
+      "3601",
+      "874"
+    ],
+    "golden_chunks_semantic": [
+      "3632",
+      "911",
+      "5129"
+    ]
+  }
 ]

@@ -1,10 +1,14 @@
 import json
+import logging
+import re
 
 import tiktoken
 from openai import AsyncOpenAI
 
 from backend.config import settings
 from backend.ingestion.store import record_cost
+
+logger = logging.getLogger(__name__)
 
 _client: AsyncOpenAI | None = None
 _encoding: tiktoken.Encoding | None = None
@@ -27,6 +31,14 @@ def _get_encoding() -> tiktoken.Encoding:
 G4OM_INPUT_COST_PER_1M = 0.15
 G4OM_OUTPUT_COST_PER_1M = 0.60
 
+_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
+
+
+def _strip_fences(text: str) -> str:
+    match = _FENCE_RE.search(text)
+    return match.group(1) if match else text
+
+
 SYSTEM_PROMPT = "You are a query rewriting assistant. Always respond with valid JSON only."
 
 USER_TEMPLATE = (
@@ -47,6 +59,7 @@ async def rewrite_query(
         return [query]
 
     if not settings.OPENAI_API_KEY:
+        logger.warning("OPENAI_API_KEY not set – query rewriting disabled, no costs recorded")
         return [query]
 
     client = _get_client()
@@ -62,9 +75,29 @@ async def rewrite_query(
                 ],
                 temperature=0.3,
             )
+
+            if conn is not None and response.usage is not None:
+                tokens_in = response.usage.prompt_tokens
+                tokens_out = response.usage.completion_tokens
+                cost = (
+                    tokens_in / 1_000_000 * G4OM_INPUT_COST_PER_1M
+                    + tokens_out / 1_000_000 * G4OM_OUTPUT_COST_PER_1M
+                )
+                try:
+                    await record_cost(
+                        conn,
+                        "query_rewrite",
+                        tokens_in=tokens_in,
+                        tokens_out=tokens_out,
+                        cost_usd=round(cost, 6),
+                    )
+                except Exception:
+                    logger.exception("Failed to record query_rewrite cost event")
+
             raw = response.choices[0].message.content or "[]"
+            cleaned = _strip_fences(raw)
             try:
-                parsed = json.loads(raw)
+                parsed = json.loads(cleaned)
             except json.JSONDecodeError:
                 if attempt == 0:
                     continue
@@ -82,24 +115,10 @@ async def rewrite_query(
             elif len(result) < n:
                 result = [query] + result
 
-            if conn is not None and response.usage is not None:
-                tokens_in = response.usage.prompt_tokens
-                tokens_out = response.usage.completion_tokens
-                cost = (
-                    tokens_in / 1_000_000 * G4OM_INPUT_COST_PER_1M
-                    + tokens_out / 1_000_000 * G4OM_OUTPUT_COST_PER_1M
-                )
-                await record_cost(
-                    conn,
-                    "query_rewrite",
-                    tokens_in=tokens_in,
-                    tokens_out=tokens_out,
-                    cost_usd=round(cost, 6),
-                )
-
             return result
 
         except Exception:
+            logger.warning("Query rewrite attempt %d failed", attempt + 1, exc_info=True)
             if attempt == 1:
                 return [query]
 

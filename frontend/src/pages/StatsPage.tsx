@@ -37,12 +37,12 @@ function mapStatsToCostCards(stats: StatsData): CostCard[] {
     },
     {
       title: 'Avg Query Cost per Call',
-      amount: `$${stats.avg_query_cost.total.toFixed(4)}`,
+      amount: `$${stats.avg_query_cost.total.toFixed(6)}`,
       trend: { label: 'Stable', tone: 'info' },
       items: [
-        { label: 'Query Embedding', value: `$${stats.avg_query_cost.embedding.toFixed(4)}` },
-        { label: 'Query Rewrite', value: `$${stats.avg_query_cost.query_rewrite.toFixed(4)}` },
-        { label: 'Reranking & Metadata', value: `$${stats.avg_query_cost.rerank.toFixed(4)}` },
+        { label: 'Query Embedding', value: `$${stats.avg_query_cost.embedding.toFixed(6)}` },
+        { label: 'Query Rewrite', value: `$${stats.avg_query_cost.query_rewrite.toFixed(6)}` },
+        { label: 'Reranking & Metadata', value: `$${stats.avg_query_cost.rerank.toFixed(6)}` },
       ],
     },
   ]
@@ -66,7 +66,7 @@ function mapBenchmarkResults(results: BenchmarkResult[]): {
     recall10: r.recall_10,
     mrr: r.mrr,
     avgQueryMs: `${r.avg_query_time_ms}ms`,
-    avgCost: `$${r.avg_cost.toFixed(4)}`,
+    avgCost: `$${r.avg_cost.toFixed(6)}`,
   }))
 
   const chartData: ChartBar[] = results.map((r) => ({
@@ -127,7 +127,7 @@ export function StatsPage() {
         r.recall_10.toFixed(4),
         r.mrr.toFixed(4),
         r.avg_query_time_ms,
-        r.avg_cost.toFixed(4),
+        r.avg_cost.toFixed(6),
       ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','),
     )
     const csv = [headers.join(','), ...rows].join('\n')

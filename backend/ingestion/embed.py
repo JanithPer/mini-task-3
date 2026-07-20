@@ -1,27 +1,41 @@
+import asyncio
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 
 from sentence_transformers import SentenceTransformer
 
 from backend.config import settings
 
 _model: SentenceTransformer | None = None
+_load_lock = asyncio.Lock()
+_load_executor = ThreadPoolExecutor(max_workers=1)
 
 
-def _get_model() -> SentenceTransformer:
+async def ensure_model_loaded() -> None:
     global _model
-    if _model is None:
-        _model = SentenceTransformer(settings.EMBEDDING_MODEL)
+
+    if _model is not None:
+        return
+
+    async with _load_lock:
+        if _model is not None:
+            return
+
+        _model = await asyncio.get_event_loop().run_in_executor(
+            _load_executor,
+            lambda: SentenceTransformer(settings.EMBEDDING_MODEL),
+        )
         with contextlib.suppress(Exception):
             _model.to("cuda")
-    return _model
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []
+    if _model is None:
+        raise RuntimeError("Embedding model not loaded — call ensure_model_loaded() first")
 
-    model = _get_model()
-    embeddings = model.encode(
+    embeddings = _model.encode(
         texts,
         batch_size=64,
         show_progress_bar=False,

@@ -50,6 +50,13 @@ def _map_status(raw_status: str) -> StatusLiteral:
 
 @router.post("/benchmark")
 async def start_benchmark() -> dict[str, str]:
+    for run in _runs.values():
+        if run.status in ("pending", "running"):
+            raise HTTPException(
+                status_code=409,
+                detail="A benchmark is already in progress. Wait for it to complete before starting a new one.",
+            )
+
     run_id = str(uuid.uuid4())
     now = datetime.now(UTC)
 
@@ -72,6 +79,14 @@ async def start_benchmark() -> dict[str, str]:
 async def _run_benchmark_bg(state: _RunState) -> None:
     try:
         state.status = "running"
+        state.message = "Loading models..."
+
+        from backend.ingestion.embed import ensure_model_loaded
+        from backend.retrieval.rerank import ensure_reranker_loaded
+
+        await ensure_model_loaded()
+        await ensure_reranker_loaded()
+
         state.message = "Running benchmark strategies..."
 
         from backend.benchmark.runner import run_benchmark
@@ -85,7 +100,7 @@ async def _run_benchmark_bg(state: _RunState) -> None:
                 raise asyncio.CancelledError()
 
         async with pool.acquire() as conn:
-            await run_benchmark(
+            result = await run_benchmark(
                 conn,
                 progress_cb=progress_cb,
                 cancel_event=state.cancel_event,
@@ -93,7 +108,10 @@ async def _run_benchmark_bg(state: _RunState) -> None:
 
         state.status = "completed"
         state.progress = state.total
-        state.message = "Benchmark complete"
+        if result.failed_queries > 0:
+            state.message = f"Benchmark complete — {result.failed_queries} query failure(s) across all strategies"
+        else:
+            state.message = "Benchmark complete"
         state.finished_at = datetime.now(UTC)
 
     except asyncio.CancelledError:

@@ -1,4 +1,6 @@
 import asyncio
+import contextlib
+from concurrent.futures import ThreadPoolExecutor
 
 from sentence_transformers import CrossEncoder
 
@@ -7,17 +9,26 @@ from backend.ingestion.store import record_cost
 from backend.retrieval import ScoredChunk
 
 _model: CrossEncoder | None = None
+_load_lock = asyncio.Lock()
+_load_executor = ThreadPoolExecutor(max_workers=1)
 
 
-def _get_model() -> CrossEncoder:
+async def ensure_reranker_loaded() -> None:
     global _model
-    if _model is None:
-        _model = CrossEncoder(settings.RERANK_MODEL)
-        import contextlib
 
+    if _model is not None:
+        return
+
+    async with _load_lock:
+        if _model is not None:
+            return
+
+        _model = await asyncio.get_event_loop().run_in_executor(
+            _load_executor,
+            lambda: CrossEncoder(settings.RERANK_MODEL),
+        )
         with contextlib.suppress(Exception):
             _model.model.to("cuda")
-    return _model
 
 
 def _sigmoid(x: float) -> float:
@@ -35,11 +46,12 @@ async def rerank(
 ) -> list[ScoredChunk]:
     if not chunks:
         return []
+    if _model is None:
+        raise RuntimeError("Rerank model not loaded — call ensure_reranker_loaded() first")
 
-    model = _get_model()
     pairs = [(query, chunk.contextualized_content or chunk.content) for chunk in chunks]
 
-    raw_scores = await asyncio.to_thread(lambda: model.predict(pairs, show_progress_bar=False))  # type: ignore[arg-type]
+    raw_scores = await asyncio.to_thread(lambda: _model.predict(pairs, show_progress_bar=False))  # type: ignore[arg-type]
 
     for chunk, score in zip(chunks, raw_scores, strict=True):
         chunk.score = _sigmoid(float(score))

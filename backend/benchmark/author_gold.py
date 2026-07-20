@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from backend.db import close_pool, init_pool
+from backend.ingestion.embed import ensure_model_loaded
 from backend.retrieval.vector_search import vector_search
 
 QUERIES_PATH = Path(__file__).parent / "queries.json"
@@ -19,25 +20,33 @@ async def _author(default_gold: int = 3, boosted_gold: int = 4, boosted_count: i
             f"found {len(queries)}."
         )
 
+    strategies = ["recursive", "semantic"]
     pool = await init_pool()
     try:
+        await ensure_model_loaded()
         boost_indices = set(range(boosted_count))
         updated: list[dict[str, object]] = []
         for i, q in enumerate(queries):
             gold_n = boosted_gold if i in boost_indices else default_gold
             top_k = max(gold_n, 10)
-            async with pool.acquire() as conn:
-                results = await vector_search(
-                    conn,
-                    q["query"],
-                    top_k=top_k,
-                    strategy="recursive",
-                    contextual=False,
-                )
-            chunk_ids = [str(r.id) for r in results[:gold_n]]
-            q["golden_chunks"] = chunk_ids
+            per_strategy_counts: dict[str, int] = {}
+            for strategy in strategies:
+                async with pool.acquire() as conn:
+                    results = await vector_search(
+                        conn,
+                        q["query"],
+                        top_k=top_k,
+                        strategy=strategy,
+                        contextual=False,
+                    )
+                chunk_ids = [str(r.id) for r in results[:gold_n]]
+                q[f"golden_chunks_{strategy}"] = chunk_ids
+                per_strategy_counts[strategy] = len(chunk_ids)
             updated.append(q)
-            print(f"[{q['id']}] {len(chunk_ids)} golden chunks selected")
+            print(
+                f"[{q['id']}] goldens: "
+                + ", ".join(f"{s}={per_strategy_counts[s]}" for s in strategies)
+            )
     finally:
         await close_pool()
 

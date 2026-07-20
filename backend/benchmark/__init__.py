@@ -23,3 +23,4 @@ class StrategyResult:
 class BenchmarkRun:
     results: list[StrategyResult]
     run_at: str
+    failed_queries: int = 0

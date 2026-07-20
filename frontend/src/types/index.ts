@@ -76,10 +76,10 @@ export interface IngestionStatus {
 
 export interface BenchmarkStatus {
   run_id: string
-  status: 'pending' | 'running' | 'completed' | 'failed'
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
   progress: number
   total: number
-  message: string
+  message: string | null
 }
 
 export interface SearchParamsState {

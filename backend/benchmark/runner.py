@@ -201,6 +201,7 @@ async def run_benchmark(
     )
 
     strategy_results: list[StrategyResult] = []
+    failed_queries = 0
 
     for strat in STRATEGIES:
         label = strat["label"]
@@ -213,7 +214,8 @@ async def run_benchmark(
         times: list[float] = []
 
         for q in queries:
-            gold = set(q.get("golden_chunks", []))
+            gold_key = f"golden_chunks_{strat['chunk_strategy']}"
+            gold = set(q.get(gold_key, q.get("golden_chunks", [])))
 
             params = SearchParams(
                 query=q["query"],
@@ -238,6 +240,7 @@ async def run_benchmark(
                 recalls_10.append(0.0)
                 mrrs.append(0.0)
                 times.append(0.0)
+                failed_queries += 1
 
             done += 1
             if callable(progress_cb):
@@ -308,7 +311,7 @@ async def run_benchmark(
             json.dumps(result.cost_breakdown),
         )
 
-    benchmark_run = BenchmarkRun(results=strategy_results, run_at=now_iso)
+    benchmark_run = BenchmarkRun(results=strategy_results, run_at=now_iso, failed_queries=failed_queries)
     return benchmark_run
 
 

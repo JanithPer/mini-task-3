@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -8,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.db import close_pool, get_pool, init_pool
+from backend.ingestion.embed import ensure_model_loaded
+from backend.retrieval.rerank import ensure_reranker_loaded
 from backend.routes import routers
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -18,9 +21,21 @@ logger = logging.getLogger(__name__)
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     await init_pool()
     logger.info("Database pool initialized")
+    asyncio.create_task(_preload_models())
     yield
     await close_pool()
     logger.info("Database pool closed")
+
+
+async def _preload_models() -> None:
+    try:
+        await asyncio.gather(
+            ensure_model_loaded(),
+            ensure_reranker_loaded(),
+        )
+        logger.info("ML models preloaded")
+    except Exception:
+        logger.warning("Failed to preload models in background — will load on first use", exc_info=True)
 
 
 app = FastAPI(
