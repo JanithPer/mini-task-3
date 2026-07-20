@@ -186,6 +186,7 @@ async def run_benchmark(
     conn: asyncpg.Connection,
     *,
     progress_cb: Callable[[int, int], object] | None = None,
+    cancel_event: asyncio.Event | None = None,
 ) -> BenchmarkRun:
     queries = _load_queries()
     num_queries = len(queries)
@@ -241,6 +242,25 @@ async def run_benchmark(
             done += 1
             if callable(progress_cb):
                 progress_cb(done, total_combos)
+
+            if cancel_event and cancel_event.is_set():
+                logger.info(f"[{label}] Cancelled at query {done}/{total_combos}")
+                break
+
+        if cancel_event and cancel_event.is_set():
+            strategy_results.append(
+                StrategyResult(
+                    strategy=label,
+                    recall_5=0.0,
+                    recall_10=0.0,
+                    mrr=0.0,
+                    avg_query_time_ms=0.0,
+                    avg_cost=0.0,
+                    cost_breakdown={},
+                )
+            )
+            logger.info(f"[{label}] Skipped (cancelled)")
+            break
 
         avg_recall_5 = sum(recalls_5) / num_queries
         avg_recall_10 = sum(recalls_10) / num_queries

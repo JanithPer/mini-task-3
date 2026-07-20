@@ -1,7 +1,10 @@
 import asyncio
 import logging
+from collections.abc import Callable
 
-from backend.db import close_pool, init_pool
+import asyncpg
+
+from backend.db import init_pool
 from backend.ingestion import IngestionSummary, Paper
 from backend.ingestion.chunk_recursive import chunk_recursive
 from backend.ingestion.chunk_semantic import chunk_semantic
@@ -26,12 +29,18 @@ G4OM_INPUT_COST_PER_1M = 0.15
 G4OM_OUTPUT_COST_PER_1M = 0.60
 
 
-async def run_ingestion(progress_cb=None) -> IngestionSummary:
+async def run_ingestion(
+    progress_cb: Callable[[int, int], object] | None = None,
+    *,
+    pool: asyncpg.Pool | None = None,
+    task_id: str | None = None,
+) -> IngestionSummary:
     summary = IngestionSummary()
-    pool = await init_pool()
+    _pool = pool or await init_pool()
 
-    async with pool.acquire() as conn:
-        task_id = await create_ingestion_task(conn)
+    if task_id is None:
+        async with _pool.acquire() as conn:
+            task_id = await create_ingestion_task(conn)
 
     try:
         logger.info("Step 1: Downloading papers...")
@@ -39,7 +48,7 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
         summary.papers_downloaded = len(papers)
         logger.info(f"Total papers available: {len(papers)}")
 
-        async with pool.acquire() as conn:
+        async with _pool.acquire() as conn:
             await update_ingestion_task(conn, task_id, total=len(papers), message="Parsing PDFs...")
 
         logger.info("Step 2: Parsing PDFs...")
@@ -94,7 +103,7 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
                 sem_embeddings = embed_texts(sem_embed_texts)
                 total_embed_units += len(rec_embed_texts) + len(sem_embed_texts)
 
-                async with pool.acquire() as conn:
+                async with _pool.acquire() as conn:
                     doc_id = await upsert_document(
                         conn,
                         Paper(
@@ -128,7 +137,7 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
                 if progress_cb:
                     progress_cb(i + 1, len(parsed_docs))
 
-                async with pool.acquire() as conn:
+                async with _pool.acquire() as conn:
                     await update_ingestion_task(
                         conn,
                         task_id,
@@ -145,11 +154,11 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
                 logger.info(f"Progress: {i + 1}/{len(parsed_docs)} documents")
 
         logger.info("Step 7: Creating HNSW index...")
-        async with pool.acquire() as conn:
+        async with _pool.acquire() as conn:
             await create_hnsw_index(conn)
 
         logger.info("Recording cost events...")
-        async with pool.acquire() as conn:
+        async with _pool.acquire() as conn:
             context_cost = (
                 total_context_tokens_in / 1_000_000 * G4OM_INPUT_COST_PER_1M
                 + total_context_tokens_out / 1_000_000 * G4OM_OUTPUT_COST_PER_1M
@@ -183,14 +192,17 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
     except Exception as e:
         logger.error(f"Ingestion failed: {e}")
         try:
-            async with pool.acquire() as conn:
+            async with _pool.acquire() as conn:
                 await update_ingestion_task(conn, task_id, status="error", message=str(e))
         except Exception:
             pass
         raise
 
     finally:
-        await close_pool()
+        if pool is None:
+            from backend.db import close_pool
+
+            await close_pool()
 
     return summary
 

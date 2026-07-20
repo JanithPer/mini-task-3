@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Play, Loader2, CheckCircle2, XCircle } from 'lucide-react'
-import { runBenchmark, getBenchmarkStatus, ApiError } from '@/api/client'
+import { runBenchmark, getBenchmarkStatus } from '@/api/client'
 
 interface BenchmarkRunButtonProps {
   onStart: (runId: string) => void
@@ -64,7 +64,6 @@ export function BenchmarkRunButton({ onStart, onComplete }: BenchmarkRunButtonPr
       }, 3000)
     } catch (err) {
       setStatus('error')
-      console.error(err instanceof ApiError ? err.message : 'Failed to start benchmark')
     }
   }, [onStart, onComplete, stopPolling, clearCompletedTimer])
 
