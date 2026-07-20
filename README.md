@@ -2,8 +2,8 @@
 
 A production-grade retrieval-augmented generation benchmark over arXiv papers. Search, evaluate, and compare multiple retrieval strategies — vector, hybrid (RRF), rerank, and contextual retrieval — over 120+ ingested research papers from cs.AI and cs.CL.
 
-![Search Page](docs/frontend-mockup/screen1.png)
-![Stats Page](docs/frontend-mockup/screen2.png)
+![Search Page](screenshot-1.png)
+![Stats Page](screenshot-2.png)
 
 ## Architecture
 
