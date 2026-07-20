@@ -58,7 +58,6 @@ def _merge_fts_results(
 
 
 async def hybrid_search(
-    conn: asyncpg.Connection,
     query: str,
     *,
     top_k: int,
@@ -66,30 +65,46 @@ async def hybrid_search(
     contextual: bool,
     k: int = 60,
     fts_queries: list[str] | None = None,
+    conn: asyncpg.Connection | None = None,
 ) -> list[ScoredChunk]:
-    from backend.db import _pool
+    from backend.db import get_pool
 
     fetch_k = max(top_k, 20) * 3
 
     if fts_queries is None:
         fts_queries = [query]
 
-    if _pool is not None:
-        fts_result_sets: list[list[ScoredChunk]] = []
+    pool = None
+    try:
+        pool = get_pool()
+    except RuntimeError:
+        pool = None
+
+    if pool is not None:
+
+        async def _vec() -> list[ScoredChunk]:
+            async with pool.acquire() as c:
+                return await vector_search(
+                    c, query, top_k=fetch_k, strategy=strategy, contextual=contextual
+                )
 
         async def _fts(q: str) -> list[ScoredChunk]:
-            async with _pool.acquire() as c:
+            async with pool.acquire() as c:
                 return await fts_search(c, q, top_k=fetch_k, strategy=strategy)
 
-        async with _pool.acquire() as c:
-            vec_results = await vector_search(c, query, top_k=fetch_k, strategy=strategy, contextual=contextual)
-            fts_tasks = [_fts(q) for q in fts_queries]
-            fts_result_sets = list(await asyncio.gather(*fts_tasks))
-    else:
-        vec_results = await vector_search(conn, query, top_k=fetch_k, strategy=strategy, contextual=contextual)
+        vec_task = asyncio.create_task(_vec())
+        fts_tasks = [asyncio.create_task(_fts(q)) for q in fts_queries]
+        vec_results = await vec_task
+        fts_result_sets = list(await asyncio.gather(*fts_tasks))
+    elif conn is not None:
+        vec_results = await vector_search(
+            conn, query, top_k=fetch_k, strategy=strategy, contextual=contextual
+        )
         fts_result_sets = []
         for q in fts_queries:
             fts_result_sets.append(await fts_search(conn, q, top_k=fetch_k, strategy=strategy))
+    else:
+        raise RuntimeError("Either a pool must be initialized or `conn` must be supplied")
 
     merged_fts = _merge_fts_results(fts_result_sets, k)
 

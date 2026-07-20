@@ -17,12 +17,14 @@ async def fetch_papers(target_count: int = 130) -> list[Paper]:
 
     for file_path in _existing_pdf_paths(pdf_dir):
         arxiv_id = _id_from_path(file_path)
-        papers.append(Paper(
-            arxiv_id=arxiv_id,
-            title="",
-            abstract="",
-            file_path=file_path,
-        ))
+        papers.append(
+            Paper(
+                arxiv_id=arxiv_id,
+                title="",
+                abstract="",
+                file_path=file_path,
+            )
+        )
 
     needed = max(0, target_count - len(papers))
     if needed == 0:
@@ -51,12 +53,14 @@ async def fetch_papers(target_count: int = 130) -> list[Paper]:
             print(f"Download error for {short_id}: {e}")
             continue
 
-        papers.append(Paper(
-            arxiv_id=short_id,
-            title=result.title or "",
-            abstract=result.summary or "",
-            file_path=file_path,
-        ))
+        papers.append(
+            Paper(
+                arxiv_id=short_id,
+                title=result.title or "",
+                abstract=result.summary or "",
+                file_path=file_path,
+            )
+        )
         downloaded += 1
         if len(papers) >= target_count:
             break
@@ -72,11 +76,7 @@ def _existing_arxiv_ids(pdf_dir: str) -> set[str]:
 def _existing_pdf_paths(pdf_dir: str) -> list[str]:
     if not os.path.isdir(pdf_dir):
         return []
-    return [
-        os.path.join(pdf_dir, f)
-        for f in os.listdir(pdf_dir)
-        if f.endswith(".pdf")
-    ]
+    return [os.path.join(pdf_dir, f) for f in os.listdir(pdf_dir) if f.endswith(".pdf")]
 
 
 def _id_from_path(path: str) -> str:

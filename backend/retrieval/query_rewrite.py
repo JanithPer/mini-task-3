@@ -32,7 +32,7 @@ SYSTEM_PROMPT = "You are a query rewriting assistant. Always respond with valid 
 USER_TEMPLATE = (
     "Rewrite the following search query into {n} diverse search queries "
     "that maximize coverage of relevant document chunks. "
-    "Return a JSON object with key 'queries' mapped to an array of {n} strings only."
+    "Return a JSON array of {n} strings only."
     "\n\nQuery: {query}"
 )
 
@@ -61,10 +61,14 @@ async def rewrite_query(
                     {"role": "user", "content": user_content},
                 ],
                 temperature=0.3,
-                response_format={"type": "json_object"},
             )
-            raw = response.choices[0].message.content or "{}"
-            parsed = json.loads(raw)
+            raw = response.choices[0].message.content or "[]"
+            try:
+                parsed = json.loads(raw)
+            except json.JSONDecodeError:
+                if attempt == 0:
+                    continue
+                return [query]
 
             if isinstance(parsed, list):
                 result = [str(q) for q in parsed if q]
@@ -73,7 +77,9 @@ async def rewrite_query(
             else:
                 result = []
 
-            if not result or len(result) < n:
+            if not result:
+                result = [query]
+            elif len(result) < n:
                 result = [query] + result
 
             if conn is not None and response.usage is not None:

@@ -89,9 +89,7 @@ async def ingestion_cost_per_1k_pages(conn: asyncpg.Connection) -> CostBreakdown
     )
 
 
-async def avg_query_cost(
-    conn: asyncpg.Connection, *, last_n_runs: int = 1
-) -> CostBreakdown:
+async def avg_query_cost(conn: asyncpg.Connection, *, last_n_runs: int = 1) -> CostBreakdown:
     recent_runs = await conn.fetch(
         """
         SELECT run_at FROM benchmark_runs

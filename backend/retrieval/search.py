@@ -91,13 +91,13 @@ async def search(
 
     if params.hybrid:
         chunks = await hybrid_search(
-            conn,
             params.query,
             top_k=params.top_k,
             strategy=params.chunk_strategy,
             contextual=params.contextual,
             k=60,
             fts_queries=rewrites,
+            conn=conn,
         )
     else:
         chunks = await vector_search(
@@ -122,10 +122,7 @@ async def search(
 
     elapsed_ms = (time.monotonic() - start) * 1000
 
-    results = [
-        _chunk_to_result(chunk, rank=i + 1)
-        for i, chunk in enumerate(chunks)
-    ]
+    results = [_chunk_to_result(chunk, rank=i + 1) for i, chunk in enumerate(chunks)]
 
     return SearchResponse(
         results=results,

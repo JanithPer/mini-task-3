@@ -19,20 +19,28 @@ async def vector_search(
     embedding = embed_texts([query])[0]
     emb_str = _format_vector(embedding)
 
-    rows = await conn.fetch(
-        """
-        SELECT c.id, c.document_id, c.strategy, c.content, c.contextualized_content,
-               c.embedding <=> $1::vector AS distance,
-               d.title, d.arxiv_id
-        FROM chunks c JOIN documents d ON d.id = c.document_id
-        WHERE c.strategy = $2
-        ORDER BY distance ASC
-        LIMIT $3
-        """,
-        emb_str,
-        strategy,
-        top_k,
-    )
+    if contextual:
+        sql = """
+            SELECT c.id, c.document_id, c.strategy, c.content, c.contextualized_content,
+                   c.embedding <=> $1::vector AS distance,
+                   d.title, d.arxiv_id
+            FROM chunks c JOIN documents d ON d.id = c.document_id
+            WHERE c.strategy = $2 AND c.contextualized_content IS NOT NULL
+            ORDER BY distance ASC
+            LIMIT $3
+            """
+    else:
+        sql = """
+            SELECT c.id, c.document_id, c.strategy, c.content, c.contextualized_content,
+                   c.embedding <=> $1::vector AS distance,
+                   d.title, d.arxiv_id
+            FROM chunks c JOIN documents d ON d.id = c.document_id
+            WHERE c.strategy = $2
+            ORDER BY distance ASC
+            LIMIT $3
+            """
+
+    rows = await conn.fetch(sql, emb_str, strategy, top_k)
 
     return [
         ScoredChunk(

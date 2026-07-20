@@ -26,18 +26,90 @@ class StrategyConfig(TypedDict):
 
 
 STRATEGIES: list[StrategyConfig] = [
-    {"label": "Rec+Vec", "chunk_strategy": "recursive", "hybrid": False, "rerank": False, "contextual": False},
-    {"label": "Rec+Hyb", "chunk_strategy": "recursive", "hybrid": True, "rerank": False, "contextual": False},
-    {"label": "Rec+Hyb+Rer", "chunk_strategy": "recursive", "hybrid": True, "rerank": True, "contextual": False},
-    {"label": "Sem+Vec", "chunk_strategy": "semantic", "hybrid": False, "rerank": False, "contextual": False},
-    {"label": "Sem+Hyb", "chunk_strategy": "semantic", "hybrid": True, "rerank": False, "contextual": False},
-    {"label": "Sem+Hyb+Rer", "chunk_strategy": "semantic", "hybrid": True, "rerank": True, "contextual": False},
-    {"label": "Rec+Vec+Cont", "chunk_strategy": "recursive", "hybrid": False, "rerank": False, "contextual": True},
-    {"label": "Rec+Hyb+Cont", "chunk_strategy": "recursive", "hybrid": True, "rerank": False, "contextual": True},
-    {"label": "Rec+Hyb+Rer+Cont", "chunk_strategy": "recursive", "hybrid": True, "rerank": True, "contextual": True},
-    {"label": "Sem+Vec+Cont", "chunk_strategy": "semantic", "hybrid": False, "rerank": False, "contextual": True},
-    {"label": "Sem+Hyb+Cont", "chunk_strategy": "semantic", "hybrid": True, "rerank": False, "contextual": True},
-    {"label": "Sem+Hyb+Rer+Cont", "chunk_strategy": "semantic", "hybrid": True, "rerank": True, "contextual": True},
+    {
+        "label": "Rec+Vec",
+        "chunk_strategy": "recursive",
+        "hybrid": False,
+        "rerank": False,
+        "contextual": False,
+    },
+    {
+        "label": "Rec+Hyb",
+        "chunk_strategy": "recursive",
+        "hybrid": True,
+        "rerank": False,
+        "contextual": False,
+    },
+    {
+        "label": "Rec+Hyb+Rer",
+        "chunk_strategy": "recursive",
+        "hybrid": True,
+        "rerank": True,
+        "contextual": False,
+    },
+    {
+        "label": "Sem+Vec",
+        "chunk_strategy": "semantic",
+        "hybrid": False,
+        "rerank": False,
+        "contextual": False,
+    },
+    {
+        "label": "Sem+Hyb",
+        "chunk_strategy": "semantic",
+        "hybrid": True,
+        "rerank": False,
+        "contextual": False,
+    },
+    {
+        "label": "Sem+Hyb+Rer",
+        "chunk_strategy": "semantic",
+        "hybrid": True,
+        "rerank": True,
+        "contextual": False,
+    },
+    {
+        "label": "Rec+Vec+Cont",
+        "chunk_strategy": "recursive",
+        "hybrid": False,
+        "rerank": False,
+        "contextual": True,
+    },
+    {
+        "label": "Rec+Hyb+Cont",
+        "chunk_strategy": "recursive",
+        "hybrid": True,
+        "rerank": False,
+        "contextual": True,
+    },
+    {
+        "label": "Rec+Hyb+Rer+Cont",
+        "chunk_strategy": "recursive",
+        "hybrid": True,
+        "rerank": True,
+        "contextual": True,
+    },
+    {
+        "label": "Sem+Vec+Cont",
+        "chunk_strategy": "semantic",
+        "hybrid": False,
+        "rerank": False,
+        "contextual": True,
+    },
+    {
+        "label": "Sem+Hyb+Cont",
+        "chunk_strategy": "semantic",
+        "hybrid": True,
+        "rerank": False,
+        "contextual": True,
+    },
+    {
+        "label": "Sem+Hyb+Rer+Cont",
+        "chunk_strategy": "semantic",
+        "hybrid": True,
+        "rerank": True,
+        "contextual": True,
+    },
 ]
 
 QUERIES_PATH = Path(__file__).parent / "queries.json"
@@ -50,15 +122,32 @@ def _load_queries() -> list[dict[str, Any]]:
         return json.load(f)  # type: ignore[no-any-return]
 
 
-def _build_cost_breakdown(per_query_cost: float, num_queries: int) -> dict[str, float]:
-    strategy_total = round(per_query_cost * num_queries, 6)
+def _build_cost_breakdown(
+    per_component_totals: dict[str, float], num_queries: int
+) -> dict[str, float]:
+    query_rewrite = round(per_component_totals.get("query_rewrite", 0.0), 6)
+    rerank = round(per_component_totals.get("rerank", 0.0), 6)
+    total = round(query_rewrite + rerank, 6)
     return {
         "embedding": 0.0,
         "context_gen": 0.0,
-        "query_rewrite": strategy_total,
-        "rerank": 0.0,
-        "total": strategy_total,
+        "query_rewrite": query_rewrite,
+        "rerank": rerank,
+        "total": total,
     }
+
+
+async def _summarize_costs(conn: asyncpg.Connection, since: datetime) -> dict[str, float]:
+    rows = await conn.fetch(
+        """
+        SELECT component, COALESCE(SUM(cost_usd), 0) AS total
+        FROM cost_events
+        WHERE occurred_at >= $1 AND component IN ('query_rewrite', 'rerank')
+        GROUP BY component
+        """,
+        since,
+    )
+    return {row["component"]: float(row["total"]) for row in rows}
 
 
 def _print_table(results: list[StrategyResult]) -> None:
@@ -102,17 +191,19 @@ async def run_benchmark(
     num_queries = len(queries)
     now_dt = datetime.now(UTC)
     now_iso = now_dt.isoformat()
-    start_dt = datetime.now(UTC)
 
     total_combos = len(STRATEGIES) * num_queries
     done = 0
 
-    logger.info(f"Running benchmark: {len(STRATEGIES)} strategies × {num_queries} queries = {total_combos} calls")
+    logger.info(
+        f"Running benchmark: {len(STRATEGIES)} strategies × {num_queries} queries = {total_combos} calls"
+    )
 
     strategy_results: list[StrategyResult] = []
 
     for strat in STRATEGIES:
         label = strat["label"]
+        strategy_start_dt = datetime.now(UTC)
         logger.info(f"[{label}] Starting...")
 
         recalls_5: list[float] = []
@@ -156,33 +247,24 @@ async def run_benchmark(
         avg_mrr = sum(mrrs) / num_queries
         avg_time = sum(times) / num_queries
 
+        component_totals = await _summarize_costs(conn, strategy_start_dt)
+        cost_bd = _build_cost_breakdown(component_totals, num_queries)
+        avg_cost = round(cost_bd["total"] / num_queries, 6) if num_queries else 0.0
+
         result = StrategyResult(
             strategy=label,
             recall_5=round(avg_recall_5, 4),
             recall_10=round(avg_recall_10, 4),
             mrr=round(avg_mrr, 4),
             avg_query_time_ms=round(avg_time, 2),
-            avg_cost=0.0,
-            cost_breakdown={},
+            avg_cost=avg_cost,
+            cost_breakdown=cost_bd,
         )
         strategy_results.append(result)
         logger.info(
             f"[{label}] R@5={avg_recall_5:.4f} R@10={avg_recall_10:.4f} "
-            f"MRR={avg_mrr:.4f} avg_ms={avg_time:.1f}"
+            f"MRR={avg_mrr:.4f} avg_ms={avg_time:.1f} avg_cost={avg_cost:.6f}"
         )
-
-    cost_row = await conn.fetchrow(
-        "SELECT COALESCE(SUM(cost_usd), 0) AS total FROM cost_events "
-        "WHERE component = 'query_rewrite' AND occurred_at >= $1",
-        start_dt,
-    )
-    total_query_rewrite_cost = float(cost_row["total"]) if cost_row else 0.0
-    per_query_cost = total_query_rewrite_cost / total_combos if total_combos > 0 else 0.0
-
-    for result in strategy_results:
-        cost_bd = _build_cost_breakdown(per_query_cost, num_queries)
-        result.avg_cost = round(cost_bd["total"], 6)
-        result.cost_breakdown = cost_bd
 
         await conn.execute(
             "DELETE FROM benchmark_runs WHERE strategy = $1",
@@ -194,12 +276,15 @@ async def run_benchmark(
                VALUES ($1::timestamptz, $2, $3::jsonb, $4::jsonb)""",
             now_dt,
             result.strategy,
-            json.dumps({
-                "recall_5": result.recall_5,
-                "recall_10": result.recall_10,
-                "mrr": result.mrr,
-                "avg_query_time_ms": result.avg_query_time_ms,
-            }),
+            json.dumps(
+                {
+                    "recall_5": result.recall_5,
+                    "recall_10": result.recall_10,
+                    "mrr": result.mrr,
+                    "avg_query_time_ms": result.avg_query_time_ms,
+                    "avg_cost": result.avg_cost,
+                }
+            ),
             json.dumps(result.cost_breakdown),
         )
 

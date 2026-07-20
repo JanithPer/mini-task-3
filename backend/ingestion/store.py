@@ -26,6 +26,12 @@ async def upsert_document(conn: asyncpg.Connection, paper: Paper) -> int:
     return row["id"]
 
 
+_BULK_INSERT_SQL = """
+INSERT INTO chunks (document_id, strategy, content, contextualized_content, embedding, metadata, token_count)
+VALUES ($1, $2, $3, $4, $5::vector, $6, $7)
+"""
+
+
 async def upsert_chunks(
     conn: asyncpg.Connection,
     document_id: int,
@@ -41,24 +47,25 @@ async def upsert_chunks(
         strategy,
     )
 
-    for i in range(len(chunks)):
+    rows = []
+    for i, chunk in enumerate(chunks):
         emb = embeddings[i] if i < len(embeddings) else None
         emb_str = _format_vector(emb) if emb else None
-        ctx = contextualized[i] if contextualized[i] else None
-
-        await conn.execute(
-            """
-            INSERT INTO chunks (document_id, strategy, content, contextualized_content, embedding, metadata, token_count)
-            VALUES ($1, $2, $3, $4, $5::vector, $6, $7)
-            """,
-            document_id,
-            strategy,
-            chunks[i].content,
-            ctx,
-            emb_str,
-            "{}",
-            chunks[i].token_count,
+        ctx = contextualized[i] if i < len(contextualized) and contextualized[i] else None
+        rows.append(
+            (
+                document_id,
+                strategy,
+                chunk.content,
+                ctx,
+                emb_str,
+                "{}",
+                chunk.token_count,
+            )
         )
+
+    if rows:
+        await conn.executemany(_BULK_INSERT_SQL, rows)
 
 
 async def create_hnsw_index(conn: asyncpg.Connection) -> None:

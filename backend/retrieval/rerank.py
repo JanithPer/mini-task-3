@@ -37,10 +37,7 @@ async def rerank(
         return []
 
     model = _get_model()
-    pairs = [
-        (query, chunk.contextualized_content or chunk.content)
-        for chunk in chunks
-    ]
+    pairs = [(query, chunk.contextualized_content or chunk.content) for chunk in chunks]
 
     raw_scores = await asyncio.to_thread(lambda: model.predict(pairs, show_progress_bar=False))  # type: ignore[arg-type]
 

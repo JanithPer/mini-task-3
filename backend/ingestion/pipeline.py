@@ -68,10 +68,18 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
                 rec_contexts = await contextualize_chunks(doc, rec_chunks)
                 sem_contexts = await contextualize_chunks(doc, sem_chunks)
 
-                rec_context_counts = count_context_tokens(doc.summary, doc.markdown, rec_chunks, rec_contexts)
-                sem_context_counts = count_context_tokens(doc.summary, doc.markdown, sem_chunks, sem_contexts)
-                total_context_tokens_in += rec_context_counts["tokens_in"] + sem_context_counts["tokens_in"]
-                total_context_tokens_out += rec_context_counts["tokens_out"] + sem_context_counts["tokens_out"]
+                rec_context_counts = count_context_tokens(
+                    doc.summary, doc.markdown, rec_chunks, rec_contexts
+                )
+                sem_context_counts = count_context_tokens(
+                    doc.summary, doc.markdown, sem_chunks, sem_contexts
+                )
+                total_context_tokens_in += (
+                    rec_context_counts["tokens_in"] + sem_context_counts["tokens_in"]
+                )
+                total_context_tokens_out += (
+                    rec_context_counts["tokens_out"] + sem_context_counts["tokens_out"]
+                )
 
                 rec_embed_texts = [
                     f"{ctx}\n\n{chunk.content}" if ctx else chunk.content
@@ -87,21 +95,28 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
                 total_embed_units += len(rec_embed_texts) + len(sem_embed_texts)
 
                 async with pool.acquire() as conn:
-                    doc_id = await upsert_document(conn, Paper(
-                        arxiv_id=doc.arxiv_id,
-                        title=doc.title,
-                        abstract=doc.summary,
-                        file_path=f"data/pdfs/{doc.arxiv_id}.pdf",
-                    ))
+                    doc_id = await upsert_document(
+                        conn,
+                        Paper(
+                            arxiv_id=doc.arxiv_id,
+                            title=doc.title,
+                            abstract=doc.summary,
+                            file_path=f"data/pdfs/{doc.arxiv_id}.pdf",
+                        ),
+                    )
 
                     await upsert_chunks(
-                        conn, doc_id, rec_chunks,
+                        conn,
+                        doc_id,
+                        rec_chunks,
                         strategy="recursive",
                         contextualized=rec_embed_texts,
                         embeddings=rec_embeddings,
                     )
                     await upsert_chunks(
-                        conn, doc_id, sem_chunks,
+                        conn,
+                        doc_id,
+                        sem_chunks,
                         strategy="semantic",
                         contextualized=sem_embed_texts,
                         embeddings=sem_embeddings,
@@ -115,7 +130,8 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
 
                 async with pool.acquire() as conn:
                     await update_ingestion_task(
-                        conn, task_id,
+                        conn,
+                        task_id,
                         progress=i + 1,
                         message=f"Processing {doc.arxiv_id}",
                     )
@@ -140,7 +156,8 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
             )
             if total_context_tokens_in or total_context_tokens_out:
                 await record_cost(
-                    conn, "context_gen",
+                    conn,
+                    "context_gen",
                     tokens_in=total_context_tokens_in,
                     tokens_out=total_context_tokens_out,
                     cost_usd=round(context_cost, 6),
@@ -148,15 +165,20 @@ async def run_ingestion(progress_cb=None) -> IngestionSummary:
 
             if total_embed_units:
                 await record_cost(
-                    conn, "embedding",
+                    conn,
+                    "embedding",
                     units=total_embed_units,
                     cost_usd=0.0,
                 )
 
-            await update_ingestion_task(conn, task_id, status="complete", message="Ingestion complete")
+            await update_ingestion_task(
+                conn, task_id, status="complete", message="Ingestion complete"
+            )
 
-        logger.info(f"Ingestion complete: {summary.papers_downloaded} papers, "
-                     f"{summary.chunks_created} chunks, {len(summary.errors)} errors")
+        logger.info(
+            f"Ingestion complete: {summary.papers_downloaded} papers, "
+            f"{summary.chunks_created} chunks, {len(summary.errors)} errors"
+        )
 
     except Exception as e:
         logger.error(f"Ingestion failed: {e}")
