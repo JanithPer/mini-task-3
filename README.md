@@ -1,24 +1,9 @@
 # Retrieval Engine
 
-A production-grade retrieval-augmented generation benchmark over arXiv papers. Search, evaluate, and compare multiple retrieval strategies — vector, hybrid (RRF), rerank, and contextual retrieval — over 120+ ingested research papers from cs.AI and cs.CL.
+RAG benchmark over arXiv papers. Search, evaluate, and compare vector, hybrid (RRF), rerank, and contextual retrieval strategies.
 
 ![Search Page](screenshot-1.png)
 ![Stats Page](screenshot-2.png)
-
-## Architecture
-
-```
-┌──────────────┐     ┌──────────────────────────────────────┐
-│   Frontend   │────▶│           FastAPI Backend             │
-│  React+TS    │◀────│                                      │
-│  (Vite)      │     │  /ingest   /search   /stats   /bench │
-└──────────────┘     └────────┬─────────────────┬───────────┘
-                              │                 │
-                     ┌────────▼──┐    ┌────────▼──────────┐
-                     │  pgvector  │    │   External APIs   │
-                     │  (HNSW)    │    │     OpenAI LLM    │
-                     └────────────┘    └───────────────────┘
-```
 
 ## Tech Stack
 
@@ -34,33 +19,13 @@ A production-grade retrieval-augmented generation benchmark over arXiv papers. S
 
 ## Setup
 
-1. **Clone and prepare environment:**
-
 ```bash
-cp .env.example .env
-# Edit .env and fill in your OPENAI_API_KEY
-```
-
-2. **Start PostgreSQL:**
-
-```bash
+cp .env.example .env  # fill in OPENAI_API_KEY
 docker compose up -d postgres
-```
-
-3. **Install dependencies and run ingestion:**
-
-```bash
 uv sync
 uv run python -m backend.ingestion.pipeline
-```
-
-4. **Start the backend:**
-
-```bash
 uv run uvicorn backend.main:app --reload --port 8000
 ```
-
-5. **Start the frontend:**
 
 ```bash
 cd frontend
@@ -68,7 +33,7 @@ npm install
 npm run dev
 ```
 
-6. **Open** `http://localhost:5173`
+Open `http://localhost:5173`.
 
 ## API Reference
 
@@ -98,20 +63,3 @@ cd frontend
 npm run typecheck
 npm run build
 ```
-
-## Build History
-
-Phased implementation plan is documented in [`docs/phases/`](docs/phases/).
-
-| Phase | Description |
-|-------|-------------|
-| [1](docs/phases/phase-1-infrastructure.md) | Infrastructure & Data Layer |
-| [2](docs/phases/phase-2-ingestion.md) | Ingestion Pipeline |
-| [3](docs/phases/phase-3-retrieval.md) | Retrieval Engine |
-| [4](docs/phases/phase-4-benchmarking.md) | Benchmarking |
-| [5](docs/phases/phase-5-cost-tracking.md) | Cost Tracking |
-| [6](docs/phases/phase-6-frontend-scaffold.md) | Frontend Scaffold |
-| [7](docs/phases/phase-7-frontend-search.md) | Frontend Search Page |
-| [8](docs/phases/phase-8-frontend-stats.md) | Frontend Stats Page |
-| [9](docs/phases/phase-9-api-routes.md) | API Routes |
-| [10](docs/phases/phase-10-integration-polish.md) | Integration & Polish |
