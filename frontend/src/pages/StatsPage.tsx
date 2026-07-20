@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Download, BarChart3, Coins, AlertTriangle } from 'lucide-react'
+import { Download, BarChart3, Banknote, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Card'
 import { CostCardItem } from '@/components/stats/CostCard'
 import { BenchmarkChart, BenchmarkLegend } from '@/components/stats/BenchmarkChart'
 import { BenchmarkTable } from '@/components/stats/BenchmarkTable'
-import { OptimizationCard } from '@/components/stats/OptimizationCard'
 import { BenchmarkRunButton } from '@/components/stats/BenchmarkRunButton'
 import {
   getStats,
@@ -52,14 +51,17 @@ function mapBenchmarkResults(results: BenchmarkResult[]): {
   rows: BenchmarkRow[]
   chartData: ChartBar[]
 } {
-  if (results.length === 0) return { rows: [], chartData: [] }
+  const withData = results.filter(
+    (r) => r.recall_5 > 0 || r.recall_10 > 0 || r.mrr > 0,
+  )
+  if (withData.length === 0) return { rows: [], chartData: [] }
 
   let bestRecall10 = -1
-  for (const r of results) {
+  for (const r of withData) {
     if (r.recall_10 > bestRecall10) bestRecall10 = r.recall_10
   }
 
-  const rows: BenchmarkRow[] = results.map((r) => ({
+  const rows: BenchmarkRow[] = withData.map((r) => ({
     strategy: r.strategy,
     isWinner: r.recall_10 === bestRecall10,
     recall5: r.recall_5,
@@ -69,7 +71,7 @@ function mapBenchmarkResults(results: BenchmarkResult[]): {
     avgCost: `$${r.avg_cost.toFixed(6)}`,
   }))
 
-  const chartData: ChartBar[] = results.map((r) => ({
+  const chartData: ChartBar[] = withData.map((r) => ({
     label: r.strategy,
     recall5: r.recall_5,
     recall10: r.recall_10,
@@ -225,7 +227,7 @@ export function StatsPage() {
         </div>
       ) : (
         <>
-          <Section title="Cost Breakdown" icon={<Coins className="h-5 w-5" />}>
+          <Section title="Cost Breakdown" icon={<Banknote className="h-5 w-5" />}>
             <div className="grid gap-5 md:grid-cols-2">
               {costCards.map((card) => (
                 <CostCardItem key={card.title} data={card} />
@@ -291,10 +293,6 @@ export function StatsPage() {
                 </div>
               </div>
             )}
-          </Section>
-
-          <Section className="pb-4">
-            <OptimizationCard />
           </Section>
         </>
       )}

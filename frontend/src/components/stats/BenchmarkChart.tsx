@@ -14,9 +14,9 @@ const series: Array<{ key: keyof Omit<ChartBar, 'label'>; color: string; label: 
 export function BenchmarkChart({ data }: BenchmarkChartProps) {
   return (
     <Card className="overflow-x-auto p-8">
-      <div className="flex h-64 items-end gap-8 px-2 min-w-max">
+      <div className="flex h-64 items-end justify-between gap-4 px-2">
         {data.map((bar) => (
-          <div key={bar.label} className="flex h-full shrink-0 flex-col items-center justify-end gap-3" style={{ width: '72px' }}>
+          <div key={bar.label} className="flex h-full flex-1 shrink-0 flex-col items-center justify-end gap-3 min-w-0">
             <div className="flex h-full w-full items-end justify-center gap-2">
               {series.map((s) => {
                 const height = bar[s.key] * 100
